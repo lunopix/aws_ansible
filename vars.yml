@@ -4,4 +4,6 @@ EC2_Reseaux:
 # Renseignez ici sous forme de liste, les IDs des réseaux où seront  déployés les [websservers]
 # Les réseaux  doivent être dans des zones de disponibilités différentes
 EC2_Targets:
+ - i-0cce2586e5b2d2d82
+ - i-01f770b10142c2a26
 #les ID des instances à monitorer seront ajoutés ici automatiquement par le playbook DeployerEC2.yml
