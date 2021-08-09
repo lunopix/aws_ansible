@@ -1,0 +1,6 @@
+[local]
+ansible_connection=local
+
+#les webservers seront remplis automatiquement par le playbook DeployerEC2.yml 
+[webservers]
+

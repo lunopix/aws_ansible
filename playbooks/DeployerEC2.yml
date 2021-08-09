@@ -1,0 +1,59 @@
+# Ce playbook permet de déployer deux EC2 sur aws
+# L'adresse IP et l'ID des machines déployées sont enregistrés respectivement dans le fichier hosts et vars.yml
+---
+ - hosts: localhost
+   gather_facts: no
+   vars_files:
+     - ../keyfiles.yml
+     - ../vars.yml
+   tasks:
+    - name: Creer un EC2 dans chaque reseau
+      ec2:
+          aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+          aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+          aws_region: "{{ AWS_REGION }}"
+          count: 1
+          assign_public_ip: yes
+          vpc_subnet_id: "{{ item }}"
+          group:
+            - ALLOW_SSH_MON_PC_HTTP_ALB
+          image: ami-0c2b8ca1dad447f8a
+          key_name: toEC2us
+          instance_type: t2.micro
+          wait: true
+          instance_tags:
+            Name: webservers
+
+      loop: "{{ EC2_Reseaux }}"
+      tags: DeployerEC2
+
+
+    - name: Recuperer les IDs des EC2
+      ec2_instance_info:
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_region: "{{ AWS_REGION }}"
+        filters:
+            tag:Name: webservers
+            instance-state-name: running
+      register: ec2
+      tags: get_info
+
+    - name: Ajouter EC2 comme target dans le fichier vars.yml
+      lineinfile:
+        path: ../vars.yml
+        insertafter: 'EC2_Targets:'
+        line: " - {{ item.instance_id }}"
+      loop: "{{ ec2.instances }}"
+      tags: get_info
+
+
+
+    - name: Ajouter les EC2 dans le fichier hosts
+      lineinfile:
+        path: ../hosts
+        insertafter: '[webservers]'
+        line: "{{ item.public_ip_address }}"
+      loop: "{{ ec2.instances }}"
+      tags: get_info
+

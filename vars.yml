@@ -1,0 +1,7 @@
+EC2_Reseaux:
+ - subnet-02250c54acd1f6c91
+ - subnet-0aa85c1e14aeb9740 
+# Renseignez ici sous forme de liste, les IDs des réseaux où seront  déployés les [websservers]
+# Les réseaux  doivent être dans des zones de disponibilités différentes
+EC2_Targets:
+#les ID des instances à monitorer seront ajoutés ici automatiquement par le playbook DeployerEC2.yml

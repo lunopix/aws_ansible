@@ -1,0 +1,28 @@
+#Ce playbook permet d'installer HTTPD et PHP sur les machines [webservers]
+#les fichiers HTML sont copiés depuis la machine de contrôle vers les [webservers]
+#le redémarrage de HTTPD est programmé en cas de modification des fichiers HTML
+---
+  - hosts: webservers
+    gather_facts: no
+    become: true
+    tasks:
+     - name: Installer httpd et php
+       yum:
+        name:
+         - httpd
+         - php
+        state: latest
+
+     - name: Copier les fichiers HTMl vers les machines EC2
+       copy:
+         src: ../index.php
+         dest: /var/www/html/index.php
+       notify: restart_httpd
+
+    handlers:
+     - name: restart_httpd
+       service:
+        name: httpd
+        state: restarted
+        enabled: yes
+

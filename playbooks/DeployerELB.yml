@@ -1,0 +1,59 @@
+#Ce playbook permet de créer un Target Group de type instance, d'associer les [webservers] au targer Group
+#de créer une application loadbalancer pour le protocole HTTP et de l'associer au Target Group
+---
+ - hosts: localhost
+   gather_facts: no
+   vars_files:
+     - ../keyfiles.yml
+     - ../vars.yml
+   tasks:
+      - name: Creer un target group
+        elb_target_group:
+          aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+          aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+          aws_region: "{{ AWS_REGION }}"
+          vpc_id: vpc-0aa07d7fe22e816be 
+          state: present
+          name: MesWebServers
+          port: 80
+          protocol: http
+          health_check_interval: 20
+          health_check_path: '/'
+          health_check_port: 80
+          health_check_timeout: 5
+          healthy_threshold_count: 2
+          unhealthy_threshold_count: 2
+          successful_response_codes: "200"
+          target_type: instance
+        tags: CreerTargetGroup
+
+      - name: Ajouter EC2 dans Target Group
+        elb_target:
+          aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+          aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+          aws_region: "{{ AWS_REGION }}"
+          target_group_name: MesWebServers
+          target_id: "{{ item }}"
+          target_port: 80
+          state: present
+        loop: "{{ EC2_Targets }}"
+        tags: CreerTargetGroup
+
+
+      - name: Creer un ELB et associer les EC2
+        elb_application_lb:
+          aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+          aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+          aws_region: "{{ AWS_REGION }}"
+          security_groups: ALLOW_HTTP_ALL
+          name: MonALB
+          state: present
+          subnets: "{{ EC2_Reseaux }}"
+          listeners:
+            - Protocol: HTTP
+              Port: 80
+              DefaultActions:
+                - Type: forward
+                  TargetGroupName: MesWebServers
+        tags: DeployerELB
+
