@@ -6,6 +6,8 @@ Créer un nouveau fichier keyfiles.yml avec les variables ci-dessous ainsi que l
 
 AWS_ACCESS_KEY_ID: AWS_SECRET_ACCESS_KEY: AWS_REGION:
 
+Modifier le playbook DeployerELB.yml avec le bon vpc_id
+
 Executez le playbook DeployerEC2.yml en premier
 
 Executez le playbook HTTPD_PHP.yml en second
