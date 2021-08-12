@@ -2,6 +2,7 @@
 ansible_connection=local
 
 #les webservers seront remplis automatiquement par le playbook DeployerEC2.yml 
+#exemple:
 [webservers]
 34.204.108.199
 52.71.198.97
